@@ -18,6 +18,10 @@ class Tour {
   final String puntoEncuentro;
   final List<String> imagenes;
 
+  // Datos del guía (solo para consultas con JOIN)
+  final String? guiaNombre;
+  final String? guiaEmail;
+
   const Tour({
     this.id,
     required this.idGuia,
@@ -37,35 +41,38 @@ class Tour {
     this.requisitos,
     required this.puntoEncuentro,
     required this.imagenes,
+    this.guiaNombre,
+    this.guiaEmail,
   });
 
-  // Convertir de JSON (desde Supabase)
+  // Convertir de JSON (desde Supabase, con JOIN de guía)
   factory Tour.fromJson(Map<String, dynamic> json) {
     return Tour(
-      id: json['id'],
-      idGuia: json['id_guia'],
-      titulo: json['titulo'],
-      descripcion: json['descripcion'],
-      precio: double.parse(json['precio'].toString()),
-      duracionHoras: json['duracion_horas'],
-      ubicacion: json['ubicacion'],
-      categoria: json['categoria'],
-      estado: json['estado'] ?? 'pendiente',
-      fechaCreacion: DateTime.parse(json['fecha_creacion']),
-      fechaAprobacion: json['fecha_aprobacion'] != null 
-          ? DateTime.parse(json['fecha_aprobacion']) 
+      id: _parseInt(json['id']),
+      idGuia: json['id_guia']?.toString() ?? '',
+      titulo: json['titulo']?.toString() ?? '',
+      descripcion: json['descripcion']?.toString() ?? '',
+      precio: _parseDouble(json['precio']),
+      duracionHoras: _parseInt(json['duracion_horas']),
+      ubicacion: json['ubicacion']?.toString() ?? '',
+      categoria: json['categoria']?.toString() ?? '',
+      estado: json['estado']?.toString() ?? 'pendiente',
+      fechaCreacion: DateTime.parse(json['fecha_creacion'].toString()),
+      fechaAprobacion: json['fecha_aprobacion'] != null && json['fecha_aprobacion'].toString().isNotEmpty
+          ? DateTime.parse(json['fecha_aprobacion'].toString())
           : null,
-      idAdminRevisor: json['id_admin_revisor'],
-      maxPersonas: json['max_personas'],
-      incluye: List<String>.from(json['incluye'] ?? []),
-      noIncluye: List<String>.from(json['no_incluye'] ?? []),
-      requisitos: json['requisitos'],
-      puntoEncuentro: json['punto_encuentro'],
-      imagenes: List<String>.from(json['imagenes'] ?? []),
+      idAdminRevisor: json['id_admin_revisor']?.toString(),
+      maxPersonas: _parseInt(json['max_personas']),
+      incluye: _parseStringList(json['incluye']),
+      noIncluye: _parseStringList(json['no_incluye']),
+      requisitos: json['requisitos']?.toString(),
+      puntoEncuentro: json['punto_encuentro']?.toString() ?? '',
+      imagenes: _parseStringList(json['imagenes']),
+      guiaNombre: json['guia'] != null ? json['guia']['name']?.toString() : null,
+      guiaEmail: json['guia'] != null ? json['guia']['email']?.toString() : null,
     );
   }
 
-  // Convertir a JSON (para Supabase)
   Map<String, dynamic> toJson() {
     return {
       'id_guia': idGuia,
@@ -85,10 +92,10 @@ class Tour {
       'requisitos': requisitos,
       'punto_encuentro': puntoEncuentro,
       'imagenes': imagenes,
+      // No incluyas guiaNombre/guiaEmail aquí; solo en fromJson para la vista
     };
   }
 
-  // Método para copiar con cambios
   Tour copyWith({
     int? id,
     String? idGuia,
@@ -108,6 +115,8 @@ class Tour {
     String? requisitos,
     String? puntoEncuentro,
     List<String>? imagenes,
+    String? guiaNombre,
+    String? guiaEmail,
   }) {
     return Tour(
       id: id ?? this.id,
@@ -128,15 +137,53 @@ class Tour {
       requisitos: requisitos ?? this.requisitos,
       puntoEncuentro: puntoEncuentro ?? this.puntoEncuentro,
       imagenes: imagenes ?? this.imagenes,
+      guiaNombre: guiaNombre ?? this.guiaNombre,
+      guiaEmail: guiaEmail ?? this.guiaEmail,
     );
   }
 
-  // Getters útiles
   bool get estaAprobado => estado == 'aprobado';
   bool get estaPendiente => estado == 'pendiente';
   bool get estaRechazado => estado == 'rechazado';
   bool get estaActivo => estado == 'aprobado';
-  
+
   String get precioFormateado => '\$${precio.toStringAsFixed(2)}';
   String get duracionFormateada => '${duracionHoras}h';
+
+  // Métodos auxiliares para parsear datos
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0;
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    return int.tryParse(value.toString()) ?? 0;
+  }
+
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    if (value is String && value.isNotEmpty) {
+      // Si viene como un string tipo JSON o texto separado por comas
+      try {
+        // Si viene como JSON array en string
+        if (value.trim().startsWith('[') && value.trim().endsWith(']')) {
+          final arr = value.trim().substring(1, value.length - 1).split(',');
+          return arr.map((e) => e.replaceAll('"', '').replaceAll("'", '').trim())
+                    .where((e) => e.isNotEmpty).toList();
+        }
+        // Si viene separado por comas
+        return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      } catch (_) {
+        return [value];
+      }
+    }
+    return [];
+  }
 }
