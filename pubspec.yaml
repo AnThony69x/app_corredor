@@ -1,0 +1,81 @@
+name: app_corredor
+description: App de observación de aves para turistas, guías y administrador.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Supabase
+  supabase_flutter: ^2.9.1
+
+  # UI y Navegación
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+  flutter_hooks: ^0.21.2
+
+  # Persistencia y Autenticación
+  shared_preferences: ^2.2.2
+  crypto: ^3.0.3
+
+  # Base de datos local
+  sqflite: ^2.3.3
+  path_provider: ^2.1.2
+  # Alternativa Hive 
+  # hive: ^2.2.3
+  # hive_flutter: ^1.1.0
+
+  # Formularios y validación
+  flutter_form_builder: ^10.1.0
+  form_builder_validators: ^11.2.0
+
+  # Cámara y galería
+  image_picker: ^1.0.7
+  camera: ^0.11.2
+
+  # Audio
+  audioplayers: ^6.5.0
+  record: ^6.0.0
+
+  # Mapas y geolocalización
+  google_maps_flutter: ^2.6.2
+  geolocator: ^14.0.2
+
+  # Sincronización y conectividad
+  connectivity_plus: ^6.1.4
+
+  # Notificaciones locales
+  flutter_local_notifications: ^19.3.1
+
+  # Exportar a PDF/Impresión/Compartir
+  pdf: ^3.10.6
+  printing: ^5.12.0
+  share_plus: ^11.0.0
+
+  # Gráficos y estadísticas
+  fl_chart: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  #assets:
+    #- assets/images/
+    #- assets/audio/
+    # Puedes agregar carpetas adicionales según tu estructura
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
