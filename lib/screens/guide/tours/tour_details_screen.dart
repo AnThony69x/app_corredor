@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../models/tour.dart'; 
+import '../../../models/tour.dart';
 
 class TourDetailsScreen extends StatefulWidget {
   final Tour tour;
@@ -22,8 +22,6 @@ class _TourDetailsScreenState extends State<TourDetailsScreen> {
 
   Future<List<Map<String, String>>> _cargarAsignados() async {
     final tourId = widget.tour.id ?? 0;
-    print('ID del tour consultado: $tourId');
-
     final response = await Supabase.instance.client
         .from('asignar_tours')
         .select('id_turista, usuario:users!asignar_tours_id_turista_fkey(name, email)')

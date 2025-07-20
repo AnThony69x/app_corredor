@@ -63,7 +63,7 @@ class Tour {
       ubicacion: json['ubicacion']?.toString() ?? '',
       categoria: json['categoria']?.toString() ?? '',
       estado: json['estado']?.toString() ?? 'pendiente',
-      fechaCreacion: DateTime.parse(json['fecha_creacion'].toString()),
+      fechaCreacion: DateTime.parse(json['fecha_creacion']?.toString() ?? json['created_at']?.toString() ?? DateTime.now().toIso8601String()),
       fechaAprobacion: json['fecha_aprobacion'] != null && json['fecha_aprobacion'].toString().isNotEmpty
           ? DateTime.parse(json['fecha_aprobacion'].toString())
           : null,
