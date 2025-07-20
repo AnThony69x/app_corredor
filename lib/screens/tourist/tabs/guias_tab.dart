@@ -226,6 +226,34 @@ class _GuiasTabState extends State<GuiasTab> {
                                   Text('Fecha creación: ${_formatearFecha(tour.fechaCreacion)}',
                                       style: const TextStyle(color: Colors.white)),
                                   const SizedBox(height: 8),
+                                  // Mostrar contacto del guía
+                                  if (tour.redSocial != null && tour.redSocial!.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.alternate_email, color: Colors.blue, size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Red social: ${tour.redSocial}',
+                                            style: const TextStyle(color: Colors.white, fontSize: 15),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (tour.telefono != null && tour.telefono!.isNotEmpty)
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.phone, color: Colors.green, size: 18),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Teléfono: ${tour.telefono}',
+                                            style: const TextStyle(color: Colors.white, fontSize: 15),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  const SizedBox(height: 8),
                                   asignadoEste
                                       ? const Text(
                                           '¡Este es tu tour asignado!',

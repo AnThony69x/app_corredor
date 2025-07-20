@@ -62,100 +62,99 @@ class _GuideToursListState extends State<GuideToursList> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Consumer<TourController>(
-    builder: (context, controller, child) {
-      final tours = controller.tours;
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<TourController>(
+      builder: (context, controller, child) {
+        final tours = controller.tours;
 
-      return Scaffold(
-        backgroundColor: const Color(0xFF101526),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF181E2E),
-          automaticallyImplyLeading: false, 
-          title: const Text('Mis Tours', style: TextStyle(color: Colors.white)),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              tooltip: 'Actualizar',
-              onPressed: _cargarTours,
-            ),
-          ],
-        ),
-        body: controller.loading && tours.isEmpty
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF23A7F3)),
-              )
-            : controller.error != null
-                ? Center(
-                    child: Text(
-                      controller.error!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  )
-                : tours.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.tour, color: Colors.white54, size: 64),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'No tienes tours creados.',
-                              style: TextStyle(color: Colors.white70, fontSize: 18),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Crea tu primer tour para empezar',
-                              style: TextStyle(color: Colors.white54),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              onPressed: _cargarTours,
-                              icon: const Icon(Icons.refresh),
-                              label: const Text('Actualizar'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2196F3),
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _cargarTours,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: tours.length,
-                          itemBuilder: (context, index) {
-                            final tour = tours[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: _buildTourCard(tour),
-                            );
-                          },
-                        ),
-                      ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            final result = await Navigator.push<bool>(
-              context,
-              MaterialPageRoute(builder: (_) => const CreateTourScreen()),
-            );
-            if (result == true) _cargarTours();
-          },
-          backgroundColor: const Color(0xFF2196F3),
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text(
-            'Nuevo Tour',
-            style: TextStyle(color: Colors.white),
+        return Scaffold(
+          backgroundColor: const Color(0xFF101526),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF181E2E),
+            automaticallyImplyLeading: false,
+            title: const Text('Mis Tours', style: TextStyle(color: Colors.white)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white),
+                tooltip: 'Actualizar',
+                onPressed: _cargarTours,
+              ),
+            ],
           ),
-        ),
-      );
-    },
-  );
-}
-
+          body: controller.loading && tours.isEmpty
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF23A7F3)),
+                )
+              : controller.error != null
+                  ? Center(
+                      child: Text(
+                        controller.error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    )
+                  : tours.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.tour, color: Colors.white54, size: 64),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'No tienes tours creados.',
+                                style: TextStyle(color: Colors.white70, fontSize: 18),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Crea tu primer tour para empezar',
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: _cargarTours,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Actualizar'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2196F3),
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _cargarTours,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: tours.length,
+                            itemBuilder: (context, index) {
+                              final tour = tours[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _buildTourCard(tour),
+                              );
+                            },
+                          ),
+                        ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () async {
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateTourScreen()),
+              );
+              if (result == true) _cargarTours();
+            },
+            backgroundColor: const Color(0xFF2196F3),
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text(
+              'Nuevo Tour',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildTourCard(Tour tour) {
     Color statusColor;

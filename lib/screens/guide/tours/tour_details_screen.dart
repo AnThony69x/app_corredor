@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
-import '../../../models/tour.dart';
-import '../../../utils/helpers.dart';
-import 'edit_tour_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../models/tour.dart'; 
 
-class TourDetailsScreen extends StatelessWidget {
+class TourDetailsScreen extends StatefulWidget {
   final Tour tour;
 
   const TourDetailsScreen({super.key, required this.tour});
 
   @override
+  State<TourDetailsScreen> createState() => _TourDetailsScreenState();
+}
+
+class _TourDetailsScreenState extends State<TourDetailsScreen> {
+  Future<List<Map<String, String>>>? _asignadosFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _asignadosFuture = _cargarAsignados();
+  }
+
+  Future<List<Map<String, String>>> _cargarAsignados() async {
+    final tourId = widget.tour.id ?? 0;
+    print('ID del tour consultado: $tourId');
+
+    final response = await Supabase.instance.client
+        .from('asignar_tours')
+        .select('id_turista, usuario:users!asignar_tours_id_turista_fkey(name, email)')
+        .eq('id_tour', tourId);
+
+    if (response is List) {
+      return response.map<Map<String, String>>((json) {
+        return {
+          'nombre': json['usuario']?['name'] ?? 'Sin nombre',
+          'email': json['usuario']?['email'] ?? 'Sin email',
+        };
+      }).toList();
+    }
+    return [];
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final tour = widget.tour;
     return Scaffold(
       backgroundColor: const Color(0xFF101526),
       appBar: AppBar(
@@ -22,23 +55,6 @@ class TourDetailsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => EditTourScreen(tour: tour),
-                ),
-              );
-              if (result == true) {
-                Navigator.pop(context, true); // Propagar el cambio
-              }
-            },
-            icon: const Icon(Icons.edit, color: Colors.white),
-            tooltip: 'Editar tour',
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -53,6 +69,29 @@ class TourDetailsScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildIncludes(),
             const SizedBox(height: 24),
+            _buildContactInfo(),
+            const SizedBox(height: 24),
+            FutureBuilder<List<Map<String, String>>>(
+              future: _asignadosFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF181E2E),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.blueAccent),
+                    ),
+                  );
+                }
+                final asignados = snapshot.data ?? [];
+                return _buildAssignedUsers(asignados);
+              },
+            ),
+            const SizedBox(height: 24),
             _buildAdditionalInfo(),
           ],
         ),
@@ -61,9 +100,10 @@ class TourDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildHeader() {
+    final tour = widget.tour;
     Color statusColor;
     IconData statusIcon;
-    
+
     switch (tour.estado) {
       case 'aprobado':
         statusColor = Colors.green;
@@ -165,6 +205,7 @@ class TourDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildBasicInfo() {
+    final tour = widget.tour;
     final info = [
       {'icon': Icons.attach_money, 'label': 'Precio', 'value': tour.precioFormateado},
       {'icon': Icons.access_time, 'label': 'Duración', 'value': tour.duracionFormateada},
@@ -233,6 +274,7 @@ class TourDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildDescription() {
+    final tour = widget.tour;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -267,11 +309,15 @@ class TourDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildIncludes() {
+    final tour = widget.tour;
     return Column(
       children: [
-        if (tour.incluye.isNotEmpty) _buildIncludesList('Qué Incluye', tour.incluye, Colors.green),
-        if (tour.incluye.isNotEmpty && tour.noIncluye.isNotEmpty) const SizedBox(height: 16),
-        if (tour.noIncluye.isNotEmpty) _buildIncludesList('Qué NO Incluye', tour.noIncluye, Colors.red),
+        if (tour.incluye.isNotEmpty)
+          _buildIncludesList('Qué Incluye', tour.incluye, Colors.green),
+        if (tour.incluye.isNotEmpty && tour.noIncluye.isNotEmpty)
+          const SizedBox(height: 16),
+        if (tour.noIncluye.isNotEmpty)
+          _buildIncludesList('Qué NO Incluye', tour.noIncluye, Colors.red),
       ],
     );
   }
@@ -320,7 +366,135 @@ class TourDetailsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildContactInfo() {
+    final tour = widget.tour;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181E2E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Contacto del Guía',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(Icons.person, color: Colors.blueAccent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                tour.guiaNombre ?? 'Sin guía',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                tour.guiaEmail ?? 'Sin email',
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.alternate_email, color: Color(0xFF23A7F3), size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  tour.redSocial ?? 'No disponible',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.phone, color: Color(0xFF23A7F3), size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  tour.telefono ?? 'No disponible',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignedUsers(List<Map<String, String>> asignados) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF181E2E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Turistas Asignados',
+            style: TextStyle(
+              color: Colors.blueAccent,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          asignados.isEmpty
+              ? const Text(
+                  'No hay turistas asignados aún.',
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: asignados.length,
+                  itemBuilder: (context, index) {
+                    final usuario = asignados[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person, color: Colors.blueAccent, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              usuario['nombre']!,
+                              style: const TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            usuario['email']!,
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAdditionalInfo() {
+    final tour = widget.tour;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -390,7 +564,7 @@ class TourDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      AppHelpers.formatDate(tour.fechaCreacion),
+                      '${tour.fechaCreacion.day}/${tour.fechaCreacion.month}/${tour.fechaCreacion.year}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

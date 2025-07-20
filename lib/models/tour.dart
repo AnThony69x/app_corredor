@@ -18,6 +18,10 @@ class Tour {
   final String puntoEncuentro;
   final List<String> imagenes;
 
+  // Nuevos campos de contacto del guía
+  final String? redSocial;
+  final String? telefono;
+
   // Datos del guía (solo para consultas con JOIN)
   final String? guiaNombre;
   final String? guiaEmail;
@@ -41,6 +45,8 @@ class Tour {
     this.requisitos,
     required this.puntoEncuentro,
     required this.imagenes,
+    this.redSocial,
+    this.telefono,
     this.guiaNombre,
     this.guiaEmail,
   });
@@ -68,6 +74,8 @@ class Tour {
       requisitos: json['requisitos']?.toString(),
       puntoEncuentro: json['punto_encuentro']?.toString() ?? '',
       imagenes: _parseStringList(json['imagenes']),
+      redSocial: json['red_social']?.toString(),
+      telefono: json['telefono']?.toString(),
       guiaNombre: json['guia'] != null ? json['guia']['name']?.toString() : null,
       guiaEmail: json['guia'] != null ? json['guia']['email']?.toString() : null,
     );
@@ -92,6 +100,8 @@ class Tour {
       'requisitos': requisitos,
       'punto_encuentro': puntoEncuentro,
       'imagenes': imagenes,
+      'red_social': redSocial,
+      'telefono': telefono,
       // No incluyas guiaNombre/guiaEmail aquí; solo en fromJson para la vista
     };
   }
@@ -115,6 +125,8 @@ class Tour {
     String? requisitos,
     String? puntoEncuentro,
     List<String>? imagenes,
+    String? redSocial,
+    String? telefono,
     String? guiaNombre,
     String? guiaEmail,
   }) {
@@ -137,6 +149,8 @@ class Tour {
       requisitos: requisitos ?? this.requisitos,
       puntoEncuentro: puntoEncuentro ?? this.puntoEncuentro,
       imagenes: imagenes ?? this.imagenes,
+      redSocial: redSocial ?? this.redSocial,
+      telefono: telefono ?? this.telefono,
       guiaNombre: guiaNombre ?? this.guiaNombre,
       guiaEmail: guiaEmail ?? this.guiaEmail,
     );

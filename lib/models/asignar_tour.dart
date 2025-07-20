@@ -21,11 +21,11 @@ class AsignarTour {
     return AsignarTour(
       id: json['id'] as int?,
       idTurista: json['id_turista'] as String,
-      idTour: json['id_tour'] as int,
-      fecha: DateTime.parse(json['fecha']),
+      idTour: json['id_tour'] is int ? json['id_tour'] as int : int.parse(json['id_tour'].toString()),
+      fecha: DateTime.parse(json['fecha'].toString()),
       estado: json['estado'] as String,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: DateTime.parse(json['created_at'].toString()),
+      updatedAt: DateTime.parse(json['updated_at'].toString()),
     );
   }
 

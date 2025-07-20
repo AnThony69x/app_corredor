@@ -25,6 +25,8 @@ class _EditTourScreenState extends State<EditTourScreen> {
   late final TextEditingController _ubicacionController;
   late final TextEditingController _maxPersonasController;
   late final TextEditingController _puntoEncuentroController;
+  late final TextEditingController _redSocialController;
+  late final TextEditingController _telefonoController;
 
   late String _categoriaSeleccionada;
   bool _loading = false;
@@ -50,7 +52,8 @@ class _EditTourScreenState extends State<EditTourScreen> {
     _ubicacionController = TextEditingController(text: widget.tour.ubicacion);
     _maxPersonasController = TextEditingController(text: widget.tour.maxPersonas.toString());
     _puntoEncuentroController = TextEditingController(text: widget.tour.puntoEncuentro);
-
+    _redSocialController = TextEditingController(text: widget.tour.redSocial ?? '');
+    _telefonoController = TextEditingController(text: widget.tour.telefono ?? '');
     _categoriaSeleccionada = widget.tour.categoria;
   }
 
@@ -62,6 +65,8 @@ class _EditTourScreenState extends State<EditTourScreen> {
     _ubicacionController.addListener(_onFieldChanged);
     _maxPersonasController.addListener(_onFieldChanged);
     _puntoEncuentroController.addListener(_onFieldChanged);
+    _redSocialController.addListener(_onFieldChanged);
+    _telefonoController.addListener(_onFieldChanged);
   }
 
   void _onFieldChanged() {
@@ -81,6 +86,8 @@ class _EditTourScreenState extends State<EditTourScreen> {
     _ubicacionController.dispose();
     _maxPersonasController.dispose();
     _puntoEncuentroController.dispose();
+    _redSocialController.dispose();
+    _telefonoController.dispose();
     _scrollController.dispose();
     _tourController.dispose();
     super.dispose();
@@ -109,6 +116,8 @@ class _EditTourScreenState extends State<EditTourScreen> {
         categoria: _categoriaSeleccionada,
         maxPersonas: int.parse(_maxPersonasController.text),
         puntoEncuentro: _puntoEncuentroController.text.trim(),
+        redSocial: _redSocialController.text.trim(),
+        telefono: _telefonoController.text.trim(),
       );
 
       final success = await _tourController.actualizarTour(tourActualizado);
@@ -155,6 +164,10 @@ class _EditTourScreenState extends State<EditTourScreen> {
               const SizedBox(height: 12),
               _buildTextField(_puntoEncuentroController, 'Punto de Encuentro', 'Plaza central', Icons.place),
               const SizedBox(height: 12),
+              _buildTextField(_redSocialController, 'Red Social del Guía', 'Ej: @guia_ecologico', Icons.alternate_email),
+              const SizedBox(height: 12),
+              _buildTextField(_telefonoController, 'Número de Teléfono', 'Ej: +52 123 456 7890', Icons.phone, keyboardType: TextInputType.phone, inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]'))]),
+              const SizedBox(height: 12),
               _buildCategorySelector(),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -171,11 +184,13 @@ class _EditTourScreenState extends State<EditTourScreen> {
   Widget _buildTextField(TextEditingController controller, String label, String hint, IconData icon, {
     int maxLines = 1,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,

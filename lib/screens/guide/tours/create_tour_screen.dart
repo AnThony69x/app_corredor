@@ -24,6 +24,8 @@ class _CreateTourScreenState extends State<CreateTourScreen> {
   final _ubicacionController = TextEditingController();
   final _maxPersonasController = TextEditingController();
   final _puntoEncuentroController = TextEditingController();
+  final _redSocialController = TextEditingController();
+  final _telefonoController = TextEditingController();
 
   String _categoriaSeleccionada = '';
   bool _loading = false;
@@ -42,6 +44,8 @@ class _CreateTourScreenState extends State<CreateTourScreen> {
     _ubicacionController.dispose();
     _maxPersonasController.dispose();
     _puntoEncuentroController.dispose();
+    _redSocialController.dispose();
+    _telefonoController.dispose();
     _scrollController.dispose();
     _tourController.dispose();
     super.dispose();
@@ -72,6 +76,8 @@ class _CreateTourScreenState extends State<CreateTourScreen> {
         fechaCreacion: DateTime.now(),
         maxPersonas: int.parse(_maxPersonasController.text),
         puntoEncuentro: _puntoEncuentroController.text.trim(),
+        redSocial: _redSocialController.text.trim(),
+        telefono: _telefonoController.text.trim(),
         incluye: [],
         noIncluye: [],
         requisitos: null,
@@ -138,6 +144,9 @@ class _CreateTourScreenState extends State<CreateTourScreen> {
               const SizedBox(height: 30),
               _buildSectionHeader('Detalles del Tour', Icons.details),
               _buildDetailsSection(),
+              const SizedBox(height: 30),
+              _buildSectionHeader('Contacto del Guía', Icons.contact_phone),
+              _buildContactSection(),
               const SizedBox(height: 40),
               _buildCreateButton(),
               const SizedBox(height: 20),
@@ -274,6 +283,37 @@ class _CreateTourScreenState extends State<CreateTourScreen> {
           icon: Icons.place,
           validator: (value) {
             if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactSection() {
+    return Column(
+      children: [
+        _buildTextField(
+          controller: _redSocialController,
+          label: 'Red Social del Guía',
+          hint: 'Ej: @guia_ecologico (Instagram, Facebook, etc.)',
+          icon: Icons.alternate_email,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildTextField(
+          controller: _telefonoController,
+          label: 'Número de Teléfono',
+          hint: 'Ej: +52 123 456 7890',
+          icon: Icons.phone,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]'))],
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) return 'Campo obligatorio';
+            if (value.trim().length < 8) return 'Número inválido';
             return null;
           },
         ),

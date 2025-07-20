@@ -39,7 +39,7 @@ class TourController extends ChangeNotifier {
   }
 
   // ======================
-  // Crear nuevo tour
+  // Crear nuevo tour (incluye redSocial y telefono)
   // ======================
   Future<bool> crearTour(Tour tour) async {
     _setLoading(true);
